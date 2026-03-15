@@ -1,0 +1,12 @@
+  .footer_container {
+      padding: 55px 0 15px;
+      margin-top: auto;
+      text-align: center;
+  }
+
+  .footer_copyright {
+      margin-top: 50px;
+      margin-bottom: 25px;
+      font-size: 1rem;
+      color: var(--color-light-gray);
+  }

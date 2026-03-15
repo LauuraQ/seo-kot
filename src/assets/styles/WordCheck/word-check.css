@@ -1,0 +1,178 @@
+.lsi-highlight {
+    background-color: #ffeb3b !important;
+    /* Желтый для LSI */
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+.key-highlight {
+    background-color: #8bc34a !important;
+    /* Зеленый для ключей */
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+body.dark-theme .lsi-highlight {
+    background-color: #b8860b !important;
+    /* Темный желтый для LSI в темной теме */
+}
+
+body.dark-theme .key-highlight {
+    background-color: #556b2f !important;
+    /* Темный зеленый для ключей в темной теме */
+}
+
+/* Подсветка нерусских символов (латинские буквы, эмодзи, спецсимволы и т.д.) */
+.non-cyrillic {
+    background-color: #ff5252 !important;
+    /* ярко-красный фон */
+    color: white !important;
+    /* белый текст для читаемости */
+
+}
+
+/* Тёмная тема — чуть темнее красный, чтобы не резало глаза */
+body.dark-theme .non-cyrillic {
+    background-color: #d32f2f !important;
+    color: white !important;
+}
+
+.sidebar {
+    width: 280px;
+    padding: 20px;
+    overflow-y: auto;
+    position: fixed;
+    height: 300px;
+    right: 100px;
+    margin-top: 65px;
+
+
+}
+
+.article-list {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0 0;
+}
+
+.empty-state {
+    color: #777;
+    font-style: italic;
+    padding: 20px 0;
+    text-align: center;
+}
+
+
+
+
+
+/* Rich Editor — основной редактор */
+.rich-editor {
+    min-height: 500px;
+    padding: 20px;
+    border: 1px solid var(--color-light-gray);
+    border-radius: 6px;
+    background: var(--color-bg-panel);
+    color: var(--color-text-main);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 16px;
+    line-height: 1.65;
+    overflow-y: auto;
+}
+
+body.dark-theme .rich-editor {
+    border-color: #444444;
+}
+
+/* Подсветки внутри редактора */
+#rich-editor .lsi-highlight,
+.rich-editor .lsi-highlight {
+    background-color: var(--color-lsi);
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+#rich-editor .key-highlight,
+.rich-editor .key-highlight {
+    background-color: var(--color-key);
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+#rich-editor .non-cyrillic,
+.rich-editor .non-cyrillic {
+    background-color: var(--color-non-cyr);
+    color: white;
+
+}
+
+/* Article List */
+.article-list li {
+    padding: 10px 12px;
+    margin-bottom: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    background: #ffffff;
+    border: 1px solid var(--color-light-gray);
+    transition: all 0.13s;
+}
+
+.article-list li:hover {
+    background-color: var(--color-bg-hover);
+    border-color: var(--color-gray);
+}
+
+.article-list li.active {
+    border-color: #444444;
+    background-color: #f8f8f8;
+    font-weight: 500;
+}
+
+body.dark-theme .article-list li {
+    background: #333333;
+    background-color: #444444;
+}
+
+body.dark-theme .article-list li.active {
+    background: #333333 !important;
+    background-color: var(--color-bg-hover);
+}
+
+/* Toolbar */
+
+.editor-toolbar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.editor-toolbar button {
+    padding: 6px 12px;
+    font-size: 16px;
+    background: white;
+    border-radius: 4px;
+    color: var(--color-text-main);
+    cursor: pointer;
+    border: 1px solid var(--color-light-gray);
+}
+
+.editor-toolbar button:hover {
+    background: var(--color-toolbar-hover);
+}
+
+
+
+/* Counts */
+.counts {
+    padding: 10px;
+    background: var(--color-counts-bg);
+    border-radius: 6px;
+    color: var(--color-text-main);
+    font-size: 1.05rem;
+}
+
+#text-output {
+    background-color: var(--color-bg-panel);
+    color: var(--color-text-main);
+    border: 1px solid var(--color-border);
+}

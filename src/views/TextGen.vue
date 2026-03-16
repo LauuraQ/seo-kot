@@ -1155,7 +1155,7 @@ generateTextBtn.addEventListener('click', async () => {
                 const response = await callGitHubModels(prompt, token, model);
 
                 // Задержка после запроса (можно уменьшить до 10000–12000)
-                await delay(12000);
+                await delay(30000);
 
                 completedChunks++;
                 updateProgress();

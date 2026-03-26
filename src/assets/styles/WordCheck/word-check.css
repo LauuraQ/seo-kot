@@ -164,7 +164,9 @@ body.dark-theme .article-list li.active {
 
 /* Counts */
 .counts {
-    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    margin: 5px;
     background: var(--color-counts-bg);
     border-radius: 6px;
     color: var(--color-text-main);
@@ -175,4 +177,147 @@ body.dark-theme .article-list li.active {
     background-color: var(--color-bg-panel);
     color: var(--color-text-main);
     border: 1px solid var(--color-border);
+}
+
+/* Подсветка совпавших H2 */
+.h2-match-highlight {
+    background-color: #d4edda;
+    border-bottom: 2px solid #28a745;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+/* Опционально: подсветка H2 без совпадения */
+.h2-no-match {
+    background-color: #fff3cd;
+    border-bottom: 2px solid #ffc107;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+body.dark-theme .h2-match-highlight {
+    background-color: #1b4332;
+    border-bottom: 2px solid #40916c;
+    color: #d8f3dc;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+body.dark-theme .h2-no-match {
+    background-color: #4a3b00;
+    border-bottom: 2px solid #ffc107;
+    color: #fff3cd;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+/* Подсветка H3 */
+.h3-highlight {
+    background-color: #e3f2fd;
+    border-bottom: 2px solid #2196f3;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+/* Тёмная тема — H3 */
+body.dark-theme .h3-highlight {
+    background-color: #1a3a5a;
+    border-bottom: 2px solid #64b5f6;
+    color: #bbdefb;
+}
+
+
+
+
+
+
+
+/* H2 Comparison Sidebar */
+/* .h2-sidebar {
+    width: 320px;
+    padding: 20px;
+    overflow-y: auto;
+    position: fixed;
+    height: 400px;
+    left: 20px;
+    margin-top: 65px;
+    background: var(--color-background-gray);
+    border: 1px solid var(--color-light-gray);
+    border-radius: 6px;
+} */
+
+body.dark-theme .h2-sidebar {
+    background: #333333;
+    border-color: #444444;
+}
+
+.h2-comparison-list {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0 0;
+}
+
+.h2-comparison-list li {
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    border-radius: 6px;
+    background: #ffffff;
+    border: 1px solid var(--color-light-gray);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+body.dark-theme .h2-comparison-list li {
+    background: #444444;
+    border-color: #555555;
+}
+
+.h2-item-original {
+    border-left: 3px solid #2196f3;
+}
+
+/* .h2-item-editor {
+    border-left: 3px solid #4caf50;
+} */
+
+.h2-item-matched {
+    background-color: #e8f5e9 !important;
+}
+
+body.dark-theme .h2-item-matched {
+    background-color: #1b4332 !important;
+}
+
+.h2-item-missing {
+    background-color: #ffebee !important;
+}
+
+body.dark-theme .h2-item-missing {
+    background-color: #4a1c1c !important;
+}
+
+.h2-item-extra {
+    background-color: #fff3e0 !important;
+}
+
+body.dark-theme .h2-item-extra {
+    background-color: #4a3b00 !important;
+}
+
+.h2-section-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--color-text-main);
+    margin-bottom: 8px;
+    margin-top: 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--color-light-gray);
+}
+
+.h2_match-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
 }

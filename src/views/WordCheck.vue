@@ -1,5 +1,6 @@
 <template>
   <div class="page-layout">
+
     <aside class="sidebar controls-container">
       <h3>Сгенерированные статьи</h3>
       <div v-if="tableItems.length === 0" class="empty-state">
@@ -12,15 +13,14 @@
           :class="{ active: selectedIndex === index }"
           @click="selectArticle(index)"
         >
-          {{ item.title || `Статья ${index + 1}` }}
+          {{ item.title || `Статья ${index + 1}` }} 
           <small>({{ item.keysCount }} ключей)</small>
         </li>
       </ul>
     </aside>
 
     <main class="main-content">
-      <h1>Проверка вхождений</h1>
-
+      <h1>Проверка текста</h1>
       <div class="centration-modif">
         <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; max-width: 980px; margin: 20px auto;">
           <!-- LSI -->
@@ -36,7 +36,6 @@
               ></textarea>
             </div>
           </div>
-
           <!-- Ключи -->
           <div class="controls-container" style="max-width: 400px;">
             <div class="control-group">
@@ -51,34 +50,81 @@
             </div>
           </div>
         </div>
-
+      <div class="controls-container" v-if="selectedIndex >= 0" style="justify-content: space-between;  display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; max-width: 980px; margin: 20px auto;">
+          <!-- Оригинальные H2 из структуры -->
+          <div class="h2_match-container">
+              <div>
+                <h2 class="h2-section-title">
+                  Исходная структура ({{ originalH2s.length }})
+                </h2>
+                <ul class="h2-comparison-list">
+                  <li 
+                    v-for="(h2, index) in originalH2s" 
+                    :key="'orig-' + index"
+                    :class="['h2-item-original', getH2ItemClass(h2, 'original')]"
+                  >
+                    <span>{{ h2 }}</span>
+                  </li>
+                  <li v-if="originalH2s.length === 0" class="empty-state">
+                    Нет H2 в структуре
+                  </li>
+                </ul>
+              </div>
+              <!-- H2 из редактора -->
+            <div>
+              <h2 class="h2-section-title" >
+                Результат генерации ({{ editorH2s.length }})
+              </h2>
+              <ul class="h2-comparison-list">
+                <li 
+                  v-for="(h2, index) in editorH2s" 
+                  :key="'editor-' + index"
+                  :class="['h2-item-editor', getH2ItemClass(h2, 'editor')]"
+                >
+                  <span>{{ h2 }}</span>
+                </li>
+                <li v-if="editorH2s.length === 0" class="empty-state">
+                  Нет H2 в тексте
+                </li>
+              </ul>
+            </div>
+          </div>
+      </div>
         <!-- Toolbar + Rich Editor -->
         <div class="controls-container" style="max-width: 980px; margin: 20px auto;">
-        <div style = "display:flex; max-height: 50px; justify-content: space-between; align-items: center; margin-bottom:24px;">
-          <!-- <div class="editor-toolbar">
-            <button @click="format('bold')" title="Жирный">𝐁</button>
-            <button @click="format('italic')" title="Курсив">𝑖</button>
-            <button @click="format('underline')" title="Подчёркнутый">𝐔</button>
-            <button @click="format('insertUnorderedList')" title="Маркированный список">ul</button>
-            <button @click="format('insertOrderedList')" title="Нумерованный список">ol</button>
-            <button @click="format('formatBlock', 'h2')" title="H2">H2</button>
-            <button @click="format('formatBlock', 'h3')" title="H3">H3</button>
-          </div> -->
-      <!-- Статистика -->
-          <div class="counts" style=" font-weight: bold; ">
-            LSI : {{ lsiFound }} из {{ lsiList.length }}<br>
-            Ключи : {{ keyFound }} из {{ keyList.length }}
-          </div> 
-</div>
-
+          <div style = " max-height: 50px; align-items: center; margin-bottom:24px;">
+            <!-- <div class="editor-toolbar">
+              <button @click="format('bold')" title="Жирный">𝐁</button>
+              <button @click="format('italic')" title="Курсив">𝑖</button>
+              <button @click="format('underline')" title="Подчёркнутый">𝐔</button>
+              <button @click="format('insertUnorderedList')" title="Маркированный список">ul</button>
+              <button @click="format('insertOrderedList')" title="Нумерованный список">ol</button>
+              <button @click="format('formatBlock', 'h2')" title="H2">H2</button>
+              <button @click="format('formatBlock', 'h3')" title="H3">H3</button>
+            </div> -->
+            <!-- Статистика -->
+             <div class="counts" style=" font-weight: bold; ">
+                <div>
+                  H2 : {{ h2Count }} (совпадений: {{ h2MatchedCount }})
+                  <br>
+                  H3 : {{ h3Count }}
+                </div>
+                <div>
+                  Символы : {{ charCount.withoutSpaces }} ({{ charCount.withSpaces }} с пробелами)
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between;">LSI : <div>{{ lsiFound }} из {{ lsiList.length }}</div></div>
+                  Ключи : {{ keyFound }} из {{ keyList.length }}
+                </div>
+            </div>
+          </div>
           <div
-            id="rich-editor"
-            contenteditable="true"
-            class="rich-editor"
-            @input="onEditorChange"
-          ></div>
-
-    
+              id="rich-editor"
+              contenteditable="true"
+              class="rich-editor"
+              @input="onEditorChange"
+            >
+          </div>
         </div>
       </div>
     </main>
@@ -99,14 +145,89 @@ const lsiText = ref('');
 const keysText = ref('');
 const currentHTML = ref('');
 
+const h2Count = ref(0);
+const h2MatchedCount = ref(0);
+const h3Count = ref(0);
+
+const originalH2s = ref([]);
+const editorH2s = ref([]);
+// Получаем оригинальные H2 из структуры выбранной статьи
+function getOriginalH2s() {
+  if (selectedIndex.value < 0 || selectedIndex.value >= tableItems.value.length) {
+    originalH2s.value = [];
+    return [];
+  }
+  
+  const item = tableItems.value[selectedIndex.value];
+  if (!item.structure) {
+    originalH2s.value = [];
+    return [];
+  }
+  
+  const h2s = item.structure
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line.startsWith('H2 -'))
+    .map(line => line.replace(/^H2\s*-\s*\*?\s*(.*?)\s*\*?\s*$/, '$1').trim())
+    .filter(Boolean);
+  
+  originalH2s.value = h2s;
+  return h2s;
+}
+
+// Обновление счётчиков заголовков
+function updateHeadingCounts() {
+  const editor = document.getElementById('rich-editor');
+  if (!editor) return;
+
+  const h2Elements = editor.querySelectorAll('h2');
+  // Заполняем ref редактора
+  editorH2s.value = Array.from(h2Elements).map(h2 => h2.textContent.trim());
+  h2Count.value = editorH2s.value.length;
+  
+  const h3Elements = editor.querySelectorAll('h3');
+  h3Count.value = h3Elements.length;
+  
+  // Пересчитываем совпадения
+  const origH2s = getOriginalH2s();
+  h2MatchedCount.value = editorH2s.value.filter(h2 => 
+    origH2s.some(orig => orig.toLowerCase() === h2.toLowerCase())
+  ).length;
+}
+
+// Функция для определения класса элемента
+function getH2ItemClass(h2Text, type) {
+  const h2Lower = h2Text.toLowerCase();
+  
+  if (type === 'original') {
+    // Если есть в редакторе - matched, иначе - missing
+    const found = editorH2s.value.some(e => e.toLowerCase() === h2Lower);
+    return found ? 'h2-item-matched' : 'h2-item-missing';
+  } else {
+    // Если есть в структуре - matched, иначе - extra
+    const found = originalH2s.value.some(o => o.toLowerCase() === h2Lower);
+    return found ? 'h2-item-matched' : 'h2-item-extra';
+  }
+}
 // Вычисляемые списки для подсчёта
 const lsiList = computed(() => lsiText.value.split('\n').map(s => s.trim()).filter(Boolean));
 const keyList = computed(() => keysText.value.split('\n').map(s => s.trim()).filter(Boolean));
+const charCount = ref({ withSpaces: 0, withoutSpaces: 0 });
+
+// Функция обновления счётчика
+function updateCharCount() {
+  const editor = document.getElementById('rich-editor');
+  if (!editor) return;
+  const text = editor.innerText || '';
+  charCount.value = {
+    withSpaces: text.length,
+    withoutSpaces: text.replace(/\s/g, '').length
+  };
+}
 
 const lsiFound = ref(0);
 const keyFound = ref(0);
 
-// ────────────────────────────────────────────────
 // Простой debounce
 function debounce(fn, delay) {
   let timeoutId;
@@ -116,7 +237,6 @@ function debounce(fn, delay) {
   };
 }
 
-// ────────────────────────────────────────────────
 function loadTableData() {
   const saved = localStorage.getItem(TABLE_STORAGE_KEY);
   if (!saved) return;
@@ -127,6 +247,7 @@ function loadTableData() {
         title: row[0]?.trim() || '',
         keys: row[1]?.trim() || '',
         lsi: row[2]?.trim() || '',
+        structure: row[3]?.trim() || '',
         keysCount: row[1] ? row[1].split('\n').filter(Boolean).length : 0
       }))
       .filter(item => item.title);
@@ -137,7 +258,6 @@ function loadGeneratedHTML() {
   currentHTML.value = localStorage.getItem(GENERATED_HTML_KEY) || '';
 }
 
-// ────────────────────────────────────────────────
 function extractSectionByTitle(fullHTML, title) {
   if (!fullHTML || !title) return '<p>Текст не найден</p>';
 
@@ -163,7 +283,6 @@ function extractSectionByTitle(fullHTML, title) {
   return html || '<p>Раздел не удалось извлечь</p>';
 }
 
-// ────────────────────────────────────────────────
 function selectArticle(index) {
   if (index < 0 || index >= tableItems.value.length) return;
 
@@ -183,18 +302,19 @@ function selectArticle(index) {
   // После подгрузки статьи — запускаем подсветку
   setTimeout(() => {
     highlightInEditor();
-    updateCounts(); // <--- ДОБАВИТЬ ЭТУ СТРОКУ: принудительно обновить счетчики
+    updateCounts();
+    updateCharCount();
+    updateHeadingCounts();
   }, 150);
 }
 
-// ────────────────────────────────────────────────
 function format(command, value = null) {
   document.execCommand(command, false, value);
   onEditorChange();
 }
 
-// ────────────────────────────────────────────────
 // Подсветка через Range и TreeWalker (без полной перезаписи)
+
 function highlightInEditor() {
   const editor = document.getElementById('rich-editor');
   if (!editor) return;
@@ -209,8 +329,27 @@ function highlightInEditor() {
     parent.removeChild(span);
   });
   editor.normalize(); // сливаем соседние текстовые узлы
-
-  // 2. Собираем все текстовые узлы
+//  2. Подсветка совпавших H2
+  const originalH2s = getOriginalH2s();
+  const h2Elements = editor.querySelectorAll('h2');
+  
+  h2Elements.forEach(h2 => {
+    const h2Text = h2.textContent.trim();
+    const isMatch = originalH2s.some(orig => 
+      orig.toLowerCase() === h2Text.toLowerCase()
+    );
+    
+    // Оборачиваем содержимое H2 в span
+    const className = isMatch ? 'h2-match-highlight' : 'h2-no-match';
+    h2.innerHTML = `<span class="${className}">${h2Text}</span>`;
+  });
+  //  3. Подсветка всех H3
+  const h3Elements = editor.querySelectorAll('h3');
+  h3Elements.forEach(h3 => {
+    const h3Text = h3.textContent.trim();
+    h3.innerHTML = `<span class="h3-highlight">${h3Text}</span>`;
+  });
+  // 4. Собираем все текстовые узлы
   const textNodes = [];
   const walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT, {
     acceptNode: node => {
@@ -227,7 +366,7 @@ function highlightInEditor() {
     textNodes.push(node);
   }
 
-  // 3. Обрабатываем каждый текстовый узел
+  // 5. Обрабатываем каждый текстовый узел
   textNodes.forEach(textNode => {
     let text = textNode.nodeValue;
     if (!text.trim()) return;
@@ -235,7 +374,6 @@ function highlightInEditor() {
     const matches = [];
 
     // non-cyrillic
-    
     let regexNonCyr = /([^а-яА-ЯёЁ0-9\s.,!?;:"'«»()—–\-]+)/gi;
     let match;
     while ((match = regexNonCyr.exec(text)) !== null) {
@@ -327,7 +465,6 @@ function escapeRegExp(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-// ────────────────────────────────────────────────
 function updateCounts() {
   const editor = document.getElementById('rich-editor');
   if (!editor) return;
@@ -343,7 +480,6 @@ function updateCounts() {
   ).length;
 }
 
-// ────────────────────────────────────────────────
 function saveCurrentText() {
   const editor = document.getElementById('rich-editor');
   if (!editor || selectedIndex.value === -1) return;
@@ -361,16 +497,16 @@ function saveCurrentText() {
   localStorage.setItem(GENERATED_HTML_KEY, full);
 }
 
-// ────────────────────────────────────────────────
 const debouncedHighlight = debounce(highlightInEditor, 700);
 
 function onEditorChange() {
   updateCounts();
   saveCurrentText();
   debouncedHighlight();
+  updateCharCount(); 
+  updateHeadingCounts();
 }
 
-// ────────────────────────────────────────────────
 onMounted(() => {
   loadTableData();
   loadGeneratedHTML();
@@ -381,14 +517,20 @@ onMounted(() => {
     editor.addEventListener('keyup', updateCounts);
     editor.addEventListener('paste', () => setTimeout(debouncedHighlight, 400));
     editor.addEventListener('blur', highlightInEditor);
+    updateHeadingCounts();
   }
 
-  watch(selectedIndex, () => {
-    setTimeout(highlightInEditor, 120);
-  }, { immediate: true });
+watch(selectedIndex, () => {
+  setTimeout(() => {
+    getOriginalH2s();
+    updateHeadingCounts();
+    highlightInEditor();
+  }, 120);
+}, { immediate: true });
 
   watch([lsiList, keyList], () => {
     setTimeout(debouncedHighlight, 300);
   });
 });
+
 </script>

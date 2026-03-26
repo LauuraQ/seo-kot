@@ -232,7 +232,7 @@
         <div class="modal-content" style="text-align: left;">
             <button class="modal-close-btn" id="close-add-modal">×</button>
             <h3>Добавить новый запрос</h3>
-            <div class="control-group">
+            <div class="add-control-group">
                 <label>Категория:</label>
                 <input type="text" id="new-parent-input" class="custom-input" list="parent-list-hints"
                     placeholder="Например: Алкоголизм" autocomplete="off">
@@ -245,18 +245,18 @@
                     <option value="Статьи - ИНФО"></option>
                 </datalist>
             </div>
-            <div class="control-group">
+            <div class="add-control-group">
                 <label>Раздел:</label>
                 <input type="text" id="new-child-input" class="custom-input" list="child-list-hints"
                     placeholder="Например: Вывод из запоя" autocomplete="off">
                 <datalist id="child-list-hints"></datalist>
             </div>
-            <div class="control-group">
+            <div class="add-control-group">
                 <label>Поисковый запрос:</label>
                 <input type="text" id="new-query-input" class="custom-input"
                     placeholder="Например: вывод из запоя москва">
             </div>
-            <div class="control-group">
+            <div class="add-control-group">
                 <label>Частотность:</label>
                 <input type="number" id="new-freq-input" class="custom-input" value="100">
             </div>
@@ -914,13 +914,13 @@ document.querySelectorAll('.info-icon-btn[data-info]').forEach(btn => {
                 message = 'Вы можете записать ваши собственные шаблоны промптов для генерации структур "Услуг" и "Инфостатей", а также в любой момент переключаться между ними.';
                 break;
             case 'toponim':
-                message = 'Напиши свой топоним, который будет подменять "Москву"';
+                message = 'Напиши свой топоним, который будет подменять "Москву". Вписаный топоним будет использоваться в промптах как {{toponym}}';
                 break;
             case 'maket':
-                message = 'Промпт используемый для генерации структуры.\n\n H1: {{title}} \n\nКлючевые слова: {{keys}} \n\n Промпт можно изменять.';
+                message = 'Промпт используемый для генерации структуры.\n\n H1: {{title}} \n\nКлючевые слова: {{keys}}\n\n Топоним: {{toponym}} \n\n Промпт можно изменять.';
                 break;
             case 'textprompt':
-                message = 'Промпт используемый для генерации текста.\n\nH1: {{title}} \n\nКлючевые слова: {{keys}}\n\n LSI-фразы: {{lsi}}\n\n Структура: {{current_h2}}\n\n Предыдущий сгенерированный текст статьи\n (используй как контекст): {{previous_content}} - складывается в рамках 1й статьи и сбрасывается\n при работе с новым H1\n\n Промпт можно изменять.';
+                message = 'Промпт используемый для генерации текста.\n\nH1: {{title}} \n\nКлючевые слова: {{keys}}\n\n LSI-фразы: {{lsi}}\n\n Топоним: {{toponym}}\n\n Структура: {{current_h2}}\n\n Предыдущий сгенерированный текст статьи\n (используй как контекст): {{previous_content}} - складывается в рамках 1й статьи и сбрасывается\n при работе с новым H1\n\n Промпт можно изменять.';
                 break;
             case 'titleatonce':
                 message = 'Число заголовков, которые будут браться из ячейки структуры для генерации за один запрос.\n\nПомните, у нейронки есть ограничения:\n\nНа запрос - 8,000–16,000 токенов (от модели);\n\nЗапросов в минуту - 15;\n\nЗапросы в день - 50 на каждую модель;\n\nНа ответ - 4,000 токенов на один ответ;\n\n ';
@@ -1054,8 +1054,11 @@ generateBtn.addEventListener('click', async () => {
 
     const keys = Array.from(keyItems).map(span => span.textContent).join(', ');
     let template = promptTemplate.value;
+    const currentToponym = toponymInput.value.trim() || 'москва';
+
     template = template.replace(/\{\{keys\}\}/g, keys);
     template = template.replace(/\{\{title\}\}/g, currentChildValue);
+    template = template.replace(/\{\{toponym\}\}/g, currentToponym); 
 
     const token = tokenInput.value.trim();
     if (!token) {
@@ -1140,15 +1143,18 @@ generateTextBtn.addEventListener('click', async () => {
             while (pos < item.headers.length) {
                 const chunk = item.headers.slice(pos, pos + nHeaders);
                 pos += nHeaders;
-
+                
+                const currentToponym = toponymInput.value.trim() || 'москва';
                 const currentH2s = chunk.map(h => `H2 - *${h}*`).join('\n');
+
 
                 let prompt = textTemplate
                     .replace(/\{\{title}}/g, item.title)
                     .replace(/\{\{keys}}/g, item.keys)
                     .replace(/\{\{lsi}}/g, item.lsi || '')
                     .replace(/\{\{previous_content}}/g, currentContext.slice(-6000)) // ← ограничение контекста
-                    .replace(/\{\{current_h2}}/g, currentH2s);
+                    .replace(/\{\{current_h2}}/g, currentH2s)
+                    .replace(/\{\{toponym}}/g, currentToponym);
 
                 statusText.textContent = `Генерация ${Math.ceil(pos / nHeaders)}/${Math.ceil(item.headers.length / nHeaders)} → «${item.title}»`;
 
